@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>task</title>
+</head>
+
+<body>
+<table>
+    <tr>
+        <td>
+            <table class="table-style" id="table_data">
+            </table>
+        </td>
+        <td>
+            <table class="settings">
+                <tr>
+                    <td colspan="2"> background settings </td>
+                </tr>
+                <tr>
+                    <td>background color:</td><td> <input type="color" id='table-backgroundColor' onchange="editSettings(this)"/> </td>
+                </tr>
+                <!--<tr>-->
+                    <!--<td> border size: </td>   <td> <input value="0" step="1" type="number" id='table-border' onchange="editSettings(this)"/> </td>-->
+                <!--</tr>-->
+                <!--<tr>-->
+                    <!--<td> border color: </td>  <td> <input type="color" id='table-bordercolor' onchange="editSettings(this)"/> </td>-->
+                <!--</tr>-->
+                <tr>
+                    <td> table opacity: </td> <td> <input value="0" step="0.1" max="1" min="0" type="number" id='table-opacity' onchange="editSettings(this)"/> </td>
+                </tr>
+                <tr>
+                    <td> table height: </td>  <td> <input value="500" step="5" type="number" id='table-height' onchange="editSettings(this, 'px')"/> </td>
+                </tr>
+                <tr>
+                    <td> table width: </td>   <td> <input value="500" step="5" type="number" id='table-width' onchange="editSettings(this, 'px')"/> </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2"> font settings </td>
+                </tr>
+                <tr>
+                    <td> string length: </td>
+                    <td> <input value="20" step="1" type="number" id='text-string-length' onchange="editSettings(this)"/> </td>
+                </tr>
+                <tr>
+                    <td> color: </td> <td> <input type="color" id='text-color' onchange="editSettings(this)"/> </td>
+                </tr>
+                <tr>
+                    <td> size: </td> <td> <input value="15" step="1" type="number" id='text-fontSize' onchange="editSettings(this, 'pt')"/> </td>
+                </tr>
+                <tr>
+                    <td> font: </td>
+                    <td>
+                        <select id='text-fontFamily' onchange="editSettings(this)">
+                            <option name="Georgia, serif"                                        value="Georgia, monospace"> Georgia </option>
+                            <option name="'Palatino Linotype', 'Book Antiqua', Palatino, serif"  value="'Palatino Linotype', 'Book Antiqua', Palatino, monospace" >Palatino Linotype</option>
+                            <option name="'Times New Roman', Times, serif"                       value="'Times New Roman', Times, monospace">Times New Roman</option>
+                            <option name='"Segoe UI",Arial,sans-serif'                           value='"Segoe UI",Arial,monospace'>Helvetica</option>
+                            <option name="Arial Black, Gadget, sans-serif"                       value="Arial Black, Gadget, monospace">Arial Black</option>
+                            <option name="'Comic Sans MS', cursive, sans-serif"                  value="'Comic Sans MS', cursive, monospace">Comic Sans MS</option>
+                            <option name="Impact, Charcoal, sans-serif"                          value="Impact, Charcoal, monospace">Impact</option>
+                            <option name='"Lucida Sans Unicode", "Lucida Grande", sans-serif'    value='"Lucida Sans Unicode", "Lucida Grande", monospace'>Lucida</option>
+                            <option name="Tahoma, Geneva, sans-serif"                            value="Tahoma, Geneva, monospace">Tahoma</option>
+                            <option name='"Trebuchet MS", Helvetica, sans-serif'                 value='"Trebuchet MS", Helvetica, monospace'>Trebuchet</option>
+                            <option name='Verdana, Geneva, sans-serif'                           value='Verdana, Geneva, monospace'>Verdana</option>
+                            <option name='"Courier New", Courier, monospace'                     value='"Courier New", Courier, monospace'>Courier New</option>
+                            <option name='"Lucida Console", Monaco, monospace'                   value='"Lucida Console", Monaco, monospace'>Lucida</option>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2"> comport settings </td>
+                </tr>
+                <tr>
+                    <td> string length: </td>
+                    <td> <input id="com-port-param" value="COM1"/> <button onclick="sendComPort()"> send com port </button> </td>
+                </tr>
+                <tr>
+                    <td> socket status </td>
+                    <td> <div id="socket-status"> </div> </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+    <script src="src/settings.js"></script>
+    <script src="options.js"></script>
+    <script src="src/table_constructor.js"></script>
+    <script src="src/socket.js"></script>
+</body>
+
+</html>
