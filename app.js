@@ -4,15 +4,19 @@ var express = require('express')
     ,http = require('http')
     ,SerialPort = require('serialport')
     ,WebSocket = require('ws')
+    ,serveStatic    = require('serve-static')
     ,port = 3000
-    ,portAndClients = {};
+    ,portAndClients = {}
 
 var server = http.createServer(app)
 server.listen(port);
 
+app.use("/public", serveStatic(path.join(__dirname, '/public/')));
+app.use("/static", serveStatic(path.join(__dirname, '/static/')));
+
 // // view engine setup
 app.get('/', function(req, res, next){
-  res.sendFile(path.join(__dirname, 'index.html'))
+  res.sendFile(path.join(__dirname, './public/index.html'))
 });
 
 const wss = new WebSocket.Server({ port: 19003 });
