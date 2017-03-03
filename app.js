@@ -1,95 +1,124 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-
-var app = express();
-
-var debug = require('debug')('skistream:server'),
-    http = require('http'),
-    SerialPort = require('serialport'),
-    WebSocket = require('ws'),
-    port = 3000;
+var express = require('express')
+    ,path = require('path')
+    // , favicon = require('serve-favicon')
+    // ,logger = require('morgan')
+    // ,cookieParser = require('cookie-parser')
+    // ,bodyParser = require('body-parser')
+    ,app = express()
+    // ,debug = require('debug')('skistream:server')
+    ,http = require('http')
+    ,SerialPort = require('serialport')
+    ,WebSocket = require('ws')
+    ,port = 3000
+    ,portAndClients = {};
 
 var server = http.createServer(app)
 server.listen(port);
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-app.set('port', port);
-
-// uncomment after placing your favicon in /public
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.post('/port', function(req, res, next) {
-    res.render('index', { title: 'Express' });
+// // view engine setup
+app.get('/', function(req, res, next){
+  res.sendFile(path.join(__dirname, 'index.html'))
 });
 
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
+// app.use(function(req, res, next) {
+//   var err = new Error('Not Found');
+//   err.status = 404;
+//   next(err);
+// });
 
 // error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-// app.get('/port', function(req, res, next) {
-//     res.render('index', { title: 'Express' });
-//     console.log(req)
+// app.use(function(err, req, res, next) {
+//   // set locals, only providing error in development
+//   res.locals.message = err.message;
+//   res.locals.error = req.app.get('env') === 'development' ? err : {};
+//
+//   // render the error page
+//   res.status(err.status || 500);
+//   res.render('error');
 // });
 
 const wss = new WebSocket.Server({ port: 19003 });
 
-wss.broadcast = function broadcast(data) {
-    wss.clients.forEach(function each(client) {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(data);
+wss.on('connection', function(ws) {
+  console.log('Connection opened (WS)')
+    ws.on('message', function (msg) {
+        console.log('Message received (WS) ' + msg);
+        try {
+          let data = JSON.parse(msg);
+          if (data.type === 'PORT') connectToWSerial(data.payload, ws);
+        } catch (e){
+          console.log('Error in on message (WS) ' + e.text)
         }
     });
-};
 
-(function connectToWSerial() {
-    var serial = new SerialPort('COM1', {
+    ws.on('close', function () {
+        portAndClients[port] && portAndClients[port].forEach((client, index) => {
+          if (client == ws) portAndClients[port].splice(index, 1)
+        });
+        console.log('Connection closed (WS) ');
+    });
+
+    ws.on('error', function(e){
+        console.log('Error in connection (WS) ' + e);
+    })
+});
+
+
+// wss.broadcast = function broadcast(data) {
+//     wss.clients.forEach(function each(client) {
+//         if (client.readyState === WebSocket.OPEN) {
+//             client.send(data);
+//         }
+//     });
+// };
+
+function connectToWSerial(port, ws) {
+
+  if (portAndClients[port]) {
+      portAndClients[port].push(ws);
+      return;
+  }
+
+    portAndClients[port] = [];
+
+    var serial = new SerialPort(port, {
         parser: SerialPort.parsers.readline('#13')
     });
 
     serial.on('open', ()=>{
-        console.log("COM post opened")
+        console.log("COM post opened");
+        portAndClients[port].push(ws);
+        sendDataByPort(port,{type: 'OPEN', payload: "COM port opened"});
     });
 
     serial.on('data', (data)=>{
-        console.log("COM data received");
+        console.log("COM data received " + data.length);
         console.log(data);
-        setImmediate(() => wss.broadcast(JSON.stringify(data)))
+        sendDataByPort(port, {type: 'DATA', payload: data});
     });
 
     serial.on('close', ()=>{
-        console.log("COM post closed")
+        console.log("COM port closed");
+        sendDataByPort(port, {type: 'CLOSE', payload: "COM port closed"});
     });
 
     serial.on('error', (e)=>{
-        console.log(`COM post err: ${JSON.stringify(e)}`)
+        console.log(`COM post err: ${JSON.stringify(e)}`);
+        sendDataByPort(port, {type: 'ERROR', payload: `COM port err: ${e}`});
+        delete portAndClients[port]
     });
 
     serial.on('disconnect', ()=>{
-        console.log("COM post disconnected")
+        console.log("COM post disconnected");
+        sendDataByPort(port, {type: 'DISCONNECT', payload: 'COM port disconnected'});
     });
-})();
+};
+
+const sendDataByPort = (port, data)=>{
+  portAndClients[port].forEach((ws)=>{
+    ws.readyState === WebSocket.OPEN && ws.send(JSON.stringify(data));
+  });
+};
+
