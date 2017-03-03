@@ -17,7 +17,7 @@ socket.onmessage = function(event) {
     var str = data.payload;
     switch (data.type){
         case "DATA":{
-            statusElement.innerHTML = "Stream is ok"
+            statusElement.innerHTML = "Stream is ok";
             superstring = str;
             redrawTable(string2array(str));
             break;

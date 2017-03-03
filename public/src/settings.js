@@ -56,7 +56,7 @@ function updateStyle() {
                 setParam2Elements(name, value, textElements)
             }
         }
-    )
+    );
 }
 
 function setParam2Elements(param, value, elements) {
@@ -74,5 +74,4 @@ function string2array(string) {
         array.push([string.substr(i, length-1)]);
     }
     return array;
-
 }

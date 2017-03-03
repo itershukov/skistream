@@ -1,11 +1,6 @@
 var express = require('express')
     ,path = require('path')
-    // , favicon = require('serve-favicon')
-    // ,logger = require('morgan')
-    // ,cookieParser = require('cookie-parser')
-    // ,bodyParser = require('body-parser')
     ,app = express()
-    // ,debug = require('debug')('skistream:server')
     ,http = require('http')
     ,SerialPort = require('serialport')
     ,WebSocket = require('ws')
@@ -20,29 +15,9 @@ app.get('/', function(req, res, next){
   res.sendFile(path.join(__dirname, 'index.html'))
 });
 
-
-// catch 404 and forward to error handler
-// app.use(function(req, res, next) {
-//   var err = new Error('Not Found');
-//   err.status = 404;
-//   next(err);
-// });
-
-// error handler
-// app.use(function(err, req, res, next) {
-//   // set locals, only providing error in development
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get('env') === 'development' ? err : {};
-//
-//   // render the error page
-//   res.status(err.status || 500);
-//   res.render('error');
-// });
-
 const wss = new WebSocket.Server({ port: 19003 });
 
 wss.on('connection', function(ws) {
-  console.log('Connection opened (WS)')
     ws.on('message', function (msg) {
         console.log('Message received (WS) ' + msg);
         try {
@@ -64,15 +39,6 @@ wss.on('connection', function(ws) {
         console.log('Error in connection (WS) ' + e);
     })
 });
-
-
-// wss.broadcast = function broadcast(data) {
-//     wss.clients.forEach(function each(client) {
-//         if (client.readyState === WebSocket.OPEN) {
-//             client.send(data);
-//         }
-//     });
-// };
 
 function connectToWSerial(port, ws) {
 
